@@ -70,7 +70,7 @@ export default {
 
   - Retrieves the {{<type-link href="#r2object-definition">}}R2Object{{</type-link>}} for the given key containing only object metadata, if the key exists, and null if the key does not exist.
 
-- {{<code>}}get(key{{<param-type>}}string{{</param-type>}}, options{{<param-type>}}R2GetOptions{{</param-type>}}{{<prop-meta>}}optional{{</prop-meta>}}) {{<type>}}Promise\<{{<param-type>}}R2ObjectBody{{</param-type>}}|{{<param-type>}}R2Object{{</param-type>}}|{{<param-type>}}null{{</param-type>}}>{{</type>}}{{</code>}}
+- {{<code>}}get(key{{<param-type>}}string{{</param-type>}}, options{{<param-type>}}R2GetOptions{{</param-type>}}{{<prop-meta>}}optional{{</prop-meta>}}){{</code>}} {{<type>}}Promise\<R2ObjectBody | R2Object | null\>{{</type>}}
 
   - Retrieves the {{<type-link href="#r2object-definition">}}R2Object{{</type-link>}} for the given key containing object metadata and the object body as a {{<type-link href="https://developer.mozilla.org/en-US/docs/Web/API/ReadableStream">}}ReadableStream{{</type-link>}}, if the key exists, and `null` if the key does not exist.
   - In the event that a precondition specified in `options` fails, `get()` returns an {{<type-link href="#r2object-definition">}}R2Object{{</type-link>}} with `body` undefined.
