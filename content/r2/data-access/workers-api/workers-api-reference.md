@@ -64,9 +64,100 @@ export default {
 
 {{<definitions>}}
 
-- {{<code>}}head(key{{<param-type>}}string{{</param-type>}}) {{<type>}}Promise\<{{<param-type>}}R2Object{{</param-type>}}|{{<param-type>}}null{{</param-type>}}>{{</type>}}{{</code>}}
+{{<render file="_head.md">}}
 
-  - Retrieves the `R2Object` for the given key containing only object metadata, if the key exists, and null if the key does not exist.
+<details>
+<summary>get(key, options?)</summary>
+<div>
+
+**Signature**
+
+```ts
+get(
+  key: string,
+  options?: R2GetOptions
+): Promise<R2ObjectBody | R2Object | null>;
+```
+
+**Parameters**
+
+- `key` {{<param-type>}}string{{</param-type>}}
+
+  The name of the object.
+
+- `options` {{<type-link href="#R2GetOptions">}}R2GetOptions{{</type-link>}}
+
+  Options allow you to perform conditional and ranged reads.
+  It contains the following objects:
+  
+    - `onlyIf` {{<type-link href="#R2Conditional">}}R2Conditional{{</type-link>}} | {{<param-type>}}Headers{{</param-type>}}
+  
+      Only return the object's body if provided preconditions are met.
+      Refer to [conditional operations](#conditional-operations).
+    
+    - `range` {{<type-link href="#R2Range">}}R2Range{{</type-link>}}
+  
+      Only return a portion of the body.
+      Refer to [ranged reads](#ranged-reads).
+
+Retrieves the {{<type-link href="#R2ObjectBody">}}R2ObjectBody{{</type-link>}} for the given `key`.
+
+In the event that a precondition provided in `options` failed, a {{<type-link href="#R2Object">}}R2Object{{</type-link>}} will be returned that only contains object metadata.
+
+If `key` does not exist in the bucket, this method will return `null`.
+
+**Examples**
+
+<details>
+<summary>Reading an object's body as text</summary>
+<div>
+
+```js
+const object = env.R2.get('todo.txt');
+
+console.log(await object.text())
+// 1. finish the documentation
+```
+
+</div>
+</details>
+
+<details>
+<summary>Retrieving the first byte of an object</summary>
+<div>
+
+```js
+const object = env.R2.get('alphabet.txt', {
+  range: {
+    length: 1
+  }
+})
+
+console.log(await object.text())
+// a
+```
+
+Alternatively, you can pass a `Headers` object that contains
+a `Range` header as opposed to constructing an `R2Range` object.
+
+If the inbound request to a Worker contained a `Range: bytes=0-0` header,
+the below example would be equivalent to `range: { length: 1 } }`.
+
+```js
+const object = env.R2.get('alphabet.txt', {
+  range: request.headers
+})
+
+console.log(await object.text())
+// a
+```
+
+</div>
+</details>  
+
+</div>
+</details>
+
 
 - {{<code>}}get(key{{<param-type>}}string{{</param-type>}}, options{{<param-type>}}R2GetOptions{{</param-type>}}{{<prop-meta>}}optional{{</prop-meta>}}) {{<type>}}Promise\<{{<param-type>}}R2ObjectBody{{</param-type>}}|{{<param-type>}}R2Object{{</param-type>}}|{{<param-type>}}null{{</param-type>}}>{{</type>}}{{</code>}}
 
@@ -380,6 +471,35 @@ Generally, these fields match the HTTP metadata passed when the object was creat
  {{</definitions>}}
 
 ## Checksums
+
+When uploading a file to R2, you can provide a checksum that will be stored alongside the object and used to verify object integrity.
+
+The currently supported algorithms are `md5`, `sha1`, `sha256`, `sha384` and `sha512`. Only one algorithm can be provided
+at a time.
+
+As an example, this is how you can upload a file and provide a `sha256` hash that you can retrieve later.
+
+```js
+await env.R2.put('foo', 'bar', {
+  sha256: 'fcde2b2edba56bf408601fb721fe9b5c338d10ee429ea04fae5511b68fbf8fb9'
+});
+```
+
+The `ETag` and `httpETag` properties of an object will not change, but if necessary then you can retrieve the checksum
+you provided under the `checksums` property.
+
+```js
+function bufferToHex (buffer) {
+  return [...new Uint8Array (buffer)]
+    .map (b => b.toString (16).padStart (2, "0"))
+    .join ("");
+}
+
+const object = await env.R2.get('foo');
+
+const hexHash = bufferToHex(object.checksums.sha256)
+// fcde2b2edba56bf408601fb721fe9b5c338d10ee429ea04fae5511b68fbf8fb9
+```
 
 If an additional checksum was provided when using the `put()` binding, it will be available on the returned object under the `checksums` property.
 

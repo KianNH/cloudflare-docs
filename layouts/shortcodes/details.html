@@ -1,0 +1,7 @@
+{{- $summary := default "" (.Get "summary") -}}
+<details>
+  <summary>{{ $summary }}</summary>
+  <div>
+    {{- .Page.RenderString .Inner -}}
+  </div>
+</details>
