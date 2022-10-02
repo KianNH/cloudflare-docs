@@ -5,6 +5,22 @@ title: Changelog
 
 # Changelog
 
+## 2022-09-22
+
+- No externally-visible changes.
+
+## 2022-09-16
+
+- R2 `put` bindings options can now have an `onlyIf` field similar to the `get` binding that does a conditional upload.
+- R2 `delete` binding can now take an array of strings to delete multiple keys.
+- Added support for SHA-1, SHA-256, SHA-384, SHA-512 checksums in R2 `put` options.
+- User-specified object checksums will now be available in the R2 `get`/`head` bindings response. MD5 is included by default for non-multipart uploaded objects.
+- Updated V8 to 10.6.
+
+## 2022-09-13
+
+- No externally-visible changes.
+
 ## 2022-08-12
 
 - A `Headers` object with the `range` header can now be used for range within `R2GetOptions` for the `get` R2 binding.
