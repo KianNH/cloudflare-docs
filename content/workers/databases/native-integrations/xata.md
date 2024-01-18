@@ -48,6 +48,10 @@ To set up an integration with Xata:
    XATA_BRANCH=<YOUR_BRANCH_HERE>
    XATA_DATABASE_URL=<YOUR_DATABASE_URL_HERE>
    ```
+   
+   ```sh
+   oops
+   ```
 
 7. The following example shows how to make a query to your Xata database in a Worker. The credentials needed to connect to Xata have been automatically added as secrets to your Worker through the integration.
 
