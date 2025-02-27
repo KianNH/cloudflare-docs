@@ -27,6 +27,7 @@ jobs:
             node_modules/.astro
           key: static
 
+      - run: exit 1
       - run: npm ci
       - run: npm run check
 
@@ -45,6 +46,15 @@ jobs:
           RUN_LINK_CHECK: true
 
       - run: npm run check:worker
+
+      - name: Dump GitHub context
+        if: ${{ failure() }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          JOB_ID=$(gh run view ${{ github.run_id }} --json jobs --jq '.jobs[] | select (.name == "Compiles") | .databaseId')
+          BODY="CI failed: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}/job/$JOB_ID"
+          echo -e "$BODY"
 
       - uses: actions/cache/save@v4
         with:
