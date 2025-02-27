@@ -24,16 +24,20 @@ async function run(): Promise<void> {
 			run_id: runId,
 		});
 
-		const conclusion = run.jobs.find((job) => job.conclusion === "failure")
-			? "failure"
-			: "success";
-
 		const job = run.jobs.findLast((job) => job.name === "Compiles");
 
 		if (!job) {
 			core.setFailed(`Could not find a job called 'Compiles'`);
 			process.exit();
 		}
+
+		const failedStep = job.steps?.find((step) => step.conclusion === "failure");
+
+		if (failedStep) {
+			core.info(`Found failed step ${failedStep.name}`);
+		}
+
+		const conclusion = failedStep ? "failure" : "success";
 
 		const { data: comments } = await octokit.rest.issues.listComments({
 			owner,
