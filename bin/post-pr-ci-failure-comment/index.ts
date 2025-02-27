@@ -24,7 +24,12 @@ async function run(): Promise<void> {
 			run_id: runId,
 		});
 
-		const jobId = run.jobs.findLast((job) => job.name === "Compiles");
+		const job = run.jobs.findLast((job) => job.name === "Compiles");
+
+		if (!job) {
+			core.setFailed(`Could not find a job called 'Compiles'`);
+			process.exit();
+		}
 
 		const { data: comments } = await octokit.rest.issues.listComments({
 			owner,
@@ -45,7 +50,7 @@ async function run(): Promise<void> {
 			core.info(`No existing comment found`);
 		}
 
-		const url = `https://github.com/${owner}/${repo}/actions/runs/${runId}/job/${jobId}`;
+		const url = `https://github.com/${owner}/${repo}/actions/runs/${runId}/job/${job.id}`;
 		const comment = `**CI run failed:** [build logs](${url})`;
 
 		if (existingComment) {
