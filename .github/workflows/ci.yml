@@ -28,7 +28,6 @@ jobs:
           key: static
 
       - run: npm ci
-      - run: exit 1
       - run: npm run check
 
       - uses: reviewdog/action-eslint@v1

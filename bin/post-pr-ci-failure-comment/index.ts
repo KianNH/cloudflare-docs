@@ -53,23 +53,33 @@ async function run(): Promise<void> {
 		const url = `https://github.com/${owner}/${repo}/actions/runs/${runId}/job/${job.id}`;
 		const comment = `**CI run failed:** [build logs](${url})`;
 
-		if (existingComment) {
-			core.info(
-				`Updating ${existingComment.id} with ${JSON.stringify(comment)}`,
-			);
-			await octokit.rest.issues.updateComment({
-				owner,
-				repo,
-				comment_id: existingComment.id,
-				body: comment,
-			});
-		} else {
-			core.info(`Creating new comment with ${JSON.stringify(comment)}`);
-			await octokit.rest.issues.createComment({
+		if (job.conclusion === "failure") {
+			if (existingComment) {
+				core.info(
+					`Updating ${existingComment.id} with ${JSON.stringify(comment)}`,
+				);
+				await octokit.rest.issues.updateComment({
+					owner,
+					repo,
+					comment_id: existingComment.id,
+					body: comment,
+				});
+			} else {
+				core.info(`Creating new comment with ${JSON.stringify(comment)}`);
+				await octokit.rest.issues.createComment({
+					owner,
+					repo,
+					issue_number: pullRequestNumber,
+					body: comment,
+				});
+			}
+		} else if (job.conclusion === "success" && existingComment) {
+			core.info(`Removing ${existingComment.id}`);
+			await octokit.rest.issues.deleteComment({
 				owner,
 				repo,
 				issue_number: pullRequestNumber,
-				body: comment,
+				comment_id: existingComment.id,
 			});
 		}
 	} catch (error) {
