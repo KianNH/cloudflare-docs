@@ -24,6 +24,10 @@ async function run(): Promise<void> {
 			run_id: runId,
 		});
 
+		const conclusion = run.jobs.find((job) => job.conclusion === "failure")
+			? "failure"
+			: "success";
+
 		const job = run.jobs.findLast((job) => job.name === "Compiles");
 
 		if (!job) {
@@ -53,7 +57,7 @@ async function run(): Promise<void> {
 		const url = `https://github.com/${owner}/${repo}/actions/runs/${runId}/job/${job.id}`;
 		const comment = `**CI run failed:** [build logs](${url})`;
 
-		if (job.conclusion === "failure") {
+		if (conclusion === "failure") {
 			if (existingComment) {
 				core.info(
 					`Updating ${existingComment.id} with ${JSON.stringify(comment)}`,
@@ -73,7 +77,7 @@ async function run(): Promise<void> {
 					body: comment,
 				});
 			}
-		} else if (job.conclusion === "success" && existingComment) {
+		} else if (conclusion === "success" && existingComment) {
 			core.info(`Removing ${existingComment.id}`);
 			await octokit.rest.issues.deleteComment({
 				owner,
